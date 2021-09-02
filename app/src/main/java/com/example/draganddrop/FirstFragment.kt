@@ -6,10 +6,12 @@ import android.graphics.Canvas
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
+import android.view.DragEvent
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.fragment.findNavController
 import com.example.draganddrop.databinding.FragmentFirstBinding
@@ -35,6 +37,51 @@ class FirstFragment : Fragment() {
         return binding.root
     }
 
+    private val maskDragListener = View.OnDragListener { view, dragEvent ->
+        val draggableItem = dragEvent.localState as View
+
+        when (dragEvent.action) {
+            DragEvent.ACTION_DRAG_STARTED -> {
+                true
+            }
+            DragEvent.ACTION_DRAG_ENTERED -> {
+                binding.maskDropArea.alpha = 0.5f
+                true
+            }
+            DragEvent.ACTION_DRAG_LOCATION -> {
+                true
+            }
+            DragEvent.ACTION_DRAG_EXITED -> {
+                binding.maskDropArea.alpha = 1f
+                draggableItem.visibility = View.VISIBLE
+                view.invalidate()
+                true
+            }
+            DragEvent.ACTION_DRAG_ENDED -> {
+                draggableItem.visibility = View.VISIBLE
+                view.invalidate()
+                true
+            }
+            DragEvent.ACTION_DROP -> {
+                binding.maskDropArea.alpha = 1f
+                if(dragEvent.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)){
+                    val draggedData = dragEvent.clipData.getItemAt(0).text
+                }
+                draggableItem.x = dragEvent.x - (draggableItem.width/2)
+                draggableItem.y = dragEvent.y - (draggableItem.height/2)
+                val parent = draggableItem.parent as ConstraintLayout
+                parent.removeView(draggableItem)
+                val dropArea = view as ConstraintLayout
+                dropArea.addView(draggableItem)
+                true
+            }
+            else -> {
+                false
+            }
+
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.mask.setOnLongClickListener {
@@ -50,6 +97,7 @@ class FirstFragment : Fragment() {
             it.visibility = View.INVISIBLE
             true
         }
+        binding.maskDropArea.setOnDragListener(maskDragListener)
     }
 
     override fun onDestroyView() {
