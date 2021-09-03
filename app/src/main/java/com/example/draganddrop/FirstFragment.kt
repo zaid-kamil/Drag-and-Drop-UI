@@ -11,10 +11,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.fragment.findNavController
 import com.example.draganddrop.databinding.FragmentFirstBinding
+import com.google.android.material.snackbar.Snackbar
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -60,6 +62,7 @@ class FirstFragment : Fragment() {
             DragEvent.ACTION_DRAG_ENDED -> {
                 draggableItem.visibility = View.VISIBLE
                 view.invalidate()
+                checkIfMaskIsOn(dragEvent)
                 true
             }
             DragEvent.ACTION_DROP -> {
@@ -105,6 +108,22 @@ class FirstFragment : Fragment() {
         _binding = null
     }
 
+    private fun checkIfMaskIsOn(dragEvent: DragEvent){
+        val faceXStart = binding.faceArea.x
+        val faceYStart = binding.faceArea.y
+        val faceXEnd = faceXStart + binding.faceArea.width
+        val faceYEnd = faceXStart + binding.faceArea.height
+
+        val msg = if (dragEvent.x in faceXStart..faceXEnd && dragEvent.y in faceYStart..faceYEnd){
+            maskOn
+        }else{
+            maskOff
+        }
+        Snackbar.make(binding.root,msg,Snackbar.LENGTH_LONG).show()
+
+
+    }
+
     class MaskDragShadowBuilder(view: View) : View.DragShadowBuilder(view) {
         private val shadow = ResourcesCompat.getDrawable(
             view.context.resources,
@@ -126,4 +145,6 @@ class FirstFragment : Fragment() {
             }
         }
     }
+
+
 }
