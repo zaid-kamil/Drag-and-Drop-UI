@@ -44,6 +44,7 @@ class FirstFragment : Fragment() {
 
         when (dragEvent.action) {
             DragEvent.ACTION_DRAG_STARTED -> {
+                binding.textCoords.text = "X = %f ,Y = %f".format(dragEvent.x,dragEvent.y)
                 true
             }
             DragEvent.ACTION_DRAG_ENTERED -> {
